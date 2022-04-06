@@ -1,0 +1,39 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+  become: yes
+      
+  vars:
+    username: user1
+    userpass: pass1
+    super_group: sudo
+
+  tasks:
+    - include_vars: secret_key.yml
+
+    - name: Create user and add to sudo group
+      ansible.builtin.user:
+        name: "{{ username }}"
+        state: present
+        shell: /bin/bash
+        password: "{{ userpass }}"
+        update_password: on_create
+        groups: "{{ super_group }}"
+        append: yes
+
+    - name: Create .ssh folder
+      file:
+        path: /home/{{ username }}/.ssh
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0700
+
+    - name: Copy SSH Public Key
+      ansible.builtin.copy :
+        content: "{{ public_key_content }}"
+        dest: "/home/{{ username }}/.ssh/id_rsa.pub"        
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: 0600

@@ -1,0 +1,28 @@
+---
+- hosts: test
+  gather_facts: no
+  connection: local
+  become: yes
+    
+  tasks:
+    - name: Install Aptitude
+      apt: 
+        name: aptitude 
+        state: latest 
+        update_cache: yes 
+        force_apt_get: yes
+        
+    - name: Install Postfix
+      apt:
+        name: postfix
+        state: latest
+        update_cache: yes
+      tags: 
+      - init 
+    
+    - name: Remove Postfix
+      apt:
+        name: postfix
+        state: absent                
+      tags: 
+      - drop
